@@ -57,6 +57,7 @@ public:
 protected:
     OwnedArray<BandFilter>          bandFiltersArray;
     int                             bandFilterOrder;
+    int                             numeroBandas;
     JUCE_LEAK_DETECTOR (FilterBank)
 };
 

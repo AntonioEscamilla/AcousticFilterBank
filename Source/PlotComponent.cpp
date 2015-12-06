@@ -1,12 +1,12 @@
 /*
-  ==============================================================================
-
-    PlotComponent.cpp
-    Created: 11 Jul 2015 10:39:09pm
-    Author:  Tony Ducks
-
-  ==============================================================================
-*/
+ ==============================================================================
+ 
+ PlotComponent.cpp
+ Created: 11 Jul 2015 10:39:09pm
+ Author:  Tony Ducks
+ 
+ ==============================================================================
+ */
 
 #include "PlotComponent.h"
 
@@ -16,10 +16,7 @@ PlotComponent::PlotComponent(Buffer* _buffer,bool _isActive) :isActive(_isActive
     float* bufferData = buffer->getData();
     const int bufferSize = buffer->getSize();
     
-    myNormalise(bufferData, bufferSize,outMin,outMax);
-    
-    Logger::writeToLog ("outMax: --> " + String(outMax));
-    Logger::writeToLog ("outMin: --> " + String(outMin));
+    findMinMax(bufferData, bufferSize,outMin,outMax);
     
     float yScale = (outMax - outMin)/5.0f;
     for (int i = 0; i < 6; i++){
@@ -30,12 +27,9 @@ PlotComponent::PlotComponent(Buffer* _buffer,bool _isActive) :isActive(_isActive
 
 /*************************************************************************/
 PlotComponent::PlotComponent(OwnedArray<Buffer>* _bufferArray,bool _isActive) :isActive(_isActive){
-    
     for(int i=0;i<_bufferArray->size();i++){
-        myNormalise(_bufferArray->getUnchecked(i)->getData(),_bufferArray->getUnchecked(i)->getSize(),outMin,outMax);
-        Logger::writeToLog ("outMax: --> " + String(outMax));
-        Logger::writeToLog ("outMin: --> " + String(outMin));
-        
+        findMinMax(_bufferArray->getUnchecked(i)->getData(),_bufferArray->getUnchecked(i)->getSize(),outMin,outMax);
+
         float yScale = (outMax - outMin)/5.0f;
         for (int i = 0; i < 6; i++){
             yLabels.push_back(String(outMax - (i * yScale),2));
@@ -76,7 +70,7 @@ void PlotComponent::paint (Graphics& g){
 void PlotComponent::resized(){
     const int w = getWidth()-GAP;
     const int h = getHeight()-GAP;
-
+    
     background = Image (Image::RGB, jmax (1, w), jmax (1, h), false);
     Graphics g (background);
     g.fillAll (Colour(0xff2f2f2f));
@@ -100,13 +94,15 @@ void PlotComponent::refreshPath(){
     
     const float xScale = (float) w / (float) bufferSize;
     const float yScale = (float) h ;
+    float normSample;
     
     path.clear();
     for (int i = 0; i < bufferSize; i++){
+        normSample = (bufferData[i] - outMin) / (outMax - outMin);    //se normaliza el sample que se lee del bufferData[i]
         if (i==0) {
-            path.startNewSubPath (i * xScale , h  - (bufferData[i] * yScale));
+            path.startNewSubPath (i * xScale , h  - (normSample * yScale));
         }else{
-            path.lineTo (i * xScale , h  - (bufferData[i] * yScale));
+            path.lineTo (i * xScale , h  - (normSample * yScale));
         }
     }
     repaint();
@@ -115,15 +111,10 @@ void PlotComponent::refreshPath(){
 /*************************************************************************/
 void PlotComponent::changeBuffer (Buffer* _buffer){
     buffer=_buffer;
-//    float* bufferData = buffer->getData();
-//    const int bufferSize = buffer->getSize();
-//    
-//    myNormalise(bufferData, bufferSize,outMin,outMax);
-//    yLabels.clear();
-//    float yScale = (outMax - outMin)/5.0f;
-//    for (int i = 0; i < 6; i++){
-//        yLabels.push_back(String(outMax - (i * yScale),2));
-//    }
+    float* bufferData = buffer->getData();
+    const int bufferSize = buffer->getSize();
+    findMinMax(bufferData, bufferSize,outMin,outMax);
+
     refreshPath();
 }
 

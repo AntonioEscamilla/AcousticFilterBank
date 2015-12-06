@@ -41,7 +41,7 @@ MainContentComponent::MainContentComponent():readAheadThread("read Ahead thread"
     
     Logger::writeToLog ("Total length: --> " + String(audioFormatReader->lengthInSamples));
     
-    int bandas=10;
+    int bandas=30;
     for (int i=0;i<bandas;i++) {
         Buffer* buffer = new Buffer(audioFormatReader->lengthInSamples);
         filteredAudioArray.add(buffer);         //filteredAudioArray es un OwnedArray y debe ser declarado como una variable de la clase para que
