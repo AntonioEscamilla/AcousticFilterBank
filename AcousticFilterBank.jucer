@@ -25,24 +25,22 @@
                        osxArchitecture="default" isDebug="0" optimisation="3" targetName="AcousticFilterBank"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_events" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../JUCE/modules"/>
-        <MODULEPATH id="dRowAudio" path="../../JUCE/modules"/>
-        <MODULEPATH id="juce_audio_utils" path="../../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_events" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_graphics" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../../juce-grapefruit-osx/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../../juce-grapefruit-osx/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
   <MODULES>
-    <MODULES id="dRowAudio" showAllCode="1" useLocalCopy="0"/>
     <MODULES id="juce_audio_basics" showAllCode="1" useLocalCopy="0"/>
     <MODULES id="juce_audio_devices" showAllCode="1" useLocalCopy="0"/>
     <MODULES id="juce_audio_formats" showAllCode="1" useLocalCopy="0"/>

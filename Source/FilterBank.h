@@ -13,8 +13,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-using namespace drow;
-
 class BicuadFilter{
 public:
     BicuadFilter();
@@ -51,7 +49,8 @@ public:
     FilterBank(int bandas);
     ~FilterBank();
     void setCoeficientes();
-    void processSamples(float* const input, OwnedArray<Buffer>* outputs, int numSamples);
+    void processSamples(float* const input, AudioSampleBuffer* outputs, int numSamples);
+    void processSamples(float* const input,OwnedArray<AudioSampleBuffer>* outputs,int numSamples);
     void processSamples(float* const input,float* const output,int numSamples);
     
 protected:

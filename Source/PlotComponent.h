@@ -13,29 +13,28 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-using namespace drow;
-
 //==============================================================================
-
+/*
+*/
 class PlotComponent    : public Component
 {
 public:
-    PlotComponent(Buffer* _buffer,bool _isActive);
-    PlotComponent(OwnedArray<Buffer>* _bufferArray,bool _isActive);
+    PlotComponent(AudioSampleBuffer* _buffer,bool _isActive);
     ~PlotComponent();
-    
+
     void paint (Graphics&);
     void resized();
     void refreshPath();
     void refillBuffer();
     void setPlotColor(Colour c);
     void setActive(bool decision);
-    void changeBuffer(Buffer* _buffer);
+    void changeActiveChannel (int _channel);
     void setYlabelOffset(int i);
-    
+
     bool                 isActive;
     Image                background;
-    Buffer*              buffer;
+    AudioSampleBuffer*   buffer;
+    int                  activeChannel;
     Path                 path;
     const int            GAP=100;
     std::vector<String>  yLabels;
@@ -50,14 +49,14 @@ public:
 
 class AudioWaveForm     : public PlotComponent{
 public:
-    AudioWaveForm(Buffer* _buffer,bool _isActive):PlotComponent(_buffer,_isActive){}
+    AudioWaveForm(AudioSampleBuffer* _buffer,bool _isActive):PlotComponent(_buffer,_isActive){}
     
     void paint (Graphics& g){
         const int w = getWidth()-GAP;
         const int h = getHeight()-GAP;
         
-        float* bufferData = buffer->getData();
-        const int bufferSize = buffer->getSize();
+        float* bufferData = buffer->getWritePointer(activeChannel);
+        const int bufferSize = buffer->getNumSamples();
         const float xScale = (float) w / (float) bufferSize;
         const float yScale = (float) h ;
         float normSample;
@@ -76,7 +75,7 @@ public:
                 }else{
                     g.drawVerticalLine(i * xScale, h - (zero * yScale) , h  - (normSample * yScale));
                 }
-                
+
             }
             g.drawLine(0, h - (zero * yScale), w, h - (zero * yScale), 0.3f);
             
@@ -87,8 +86,6 @@ public:
             }
         }
     }
-    
-    
     
     void resized(){
         const int w = getWidth()-GAP;
@@ -114,13 +111,7 @@ static const char* bandasOctava[10] = {"32","63","125","250","500","1k","2k","4k
 
 class OctaveBandPlot    : public PlotComponent{
 public:
-    OctaveBandPlot(Buffer* _buffer,bool _isActive):PlotComponent(_buffer,_isActive){
-        for (int i = 0; i < 10; i++){
-            xLabels.push_back(bandasOctava[i]);
-        }
-    }
-    
-    OctaveBandPlot(OwnedArray<Buffer>* _bufferArray,bool _isActive):PlotComponent(_bufferArray,_isActive){
+    OctaveBandPlot(AudioSampleBuffer* _buffer,bool _isActive):PlotComponent(_buffer,_isActive){
         for (int i = 0; i < 10; i++){
             xLabels.push_back(bandasOctava[i]);
         }
@@ -130,8 +121,8 @@ public:
         const int w = getWidth()-GAP;
         const int h = getHeight()-GAP;
         
-        float* bufferData = buffer->getData();
-        const int bufferSize = buffer->getSize();
+        float* bufferData = buffer->getWritePointer(activeChannel);
+        const int bufferSize = buffer->getNumSamples();
         float normSample;
         
         g.fillAll (Colour(0xff2f2f2f));
@@ -173,18 +164,12 @@ public:
     }
 };
 
-//static const char* bandasTercio[31] = {"20","25","32","40","50","63","80","100","125","160","200","250","315","400","500","630","800","1k","1.25k","1.6k","2k","2.5k","3.15k","4k","5k","6k","8k","10k","12.5k","16k","20k"};
+
 static const char* bandasTercio[31] = {" "," ","32"," "," ","63"," "," ","125"," "," ","250"," "," ","500"," "," ","1k"," "," ","2k"," "," ","4k"," "," ","8k"," "," ","16k"," "};
 
 class ThirdBandPlot    : public PlotComponent{
 public:
-    ThirdBandPlot(Buffer* _buffer,bool _isActive):PlotComponent(_buffer,_isActive){
-        for (int i = 0; i < 31; i++){
-            xLabels.push_back(bandasTercio[i]);
-        }
-    }
-    
-    ThirdBandPlot(OwnedArray<Buffer>* _bufferArray,bool _isActive):PlotComponent(_bufferArray,_isActive){
+    ThirdBandPlot(AudioSampleBuffer* _buffer,bool _isActive):PlotComponent(_buffer,_isActive){
         for (int i = 0; i < 31; i++){
             xLabels.push_back(bandasTercio[i]);
         }
@@ -194,8 +179,8 @@ public:
         const int w = getWidth()-GAP;
         const int h = getHeight()-GAP;
         
-        float* bufferData = buffer->getData();
-        const int bufferSize = buffer->getSize();
+        float* bufferData = buffer->getWritePointer(activeChannel);
+        const int bufferSize = buffer->getNumSamples();
         float normSample;
         
         g.fillAll(Colour(0xff2f2f2f));

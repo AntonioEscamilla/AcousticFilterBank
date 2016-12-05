@@ -13,8 +13,6 @@
 #include "PlotComponent.h"
 #include "FilterBank.h"
 
-using namespace drow;
-
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
@@ -28,7 +26,7 @@ public:
     ~MainContentComponent();
     void paint (Graphics&);
     void resized();
-    void audioDownSamplig(AudioSampleBuffer* input, Buffer* output,int downSampligFactor, int audioFileProportion);
+    void audioDownSamplig(AudioSampleBuffer* input, AudioSampleBuffer* output,int downSampligFactor);
     
 private:
     AudioFormatManager                      audioFormatManager;
@@ -38,9 +36,8 @@ private:
     AudioSourcePlayer                       audioSourcePlayer;
     TimeSliceThread                         readAheadThread;
     
-    ScopedPointer<Buffer>                   bufferWaveform;
-    ScopedPointer<Buffer>                   filteredWaveform;
-    OwnedArray<Buffer>                      filteredAudioArray;
+    ScopedPointer<AudioSampleBuffer>        bufferWaveform;
+    OwnedArray<AudioSampleBuffer>           filteredAudioArray;
     ScopedPointer<TabbedComponent>          tabsComponent;
     
     ScopedPointer<FilterBank>               filterBank;

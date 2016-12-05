@@ -43,7 +43,7 @@ MainContentComponent::MainContentComponent():readAheadThread("read Ahead thread"
     
     int bandas=30;
     for (int i=0;i<bandas;i++) {
-        Buffer* buffer = new Buffer(audioFormatReader->lengthInSamples);
+        AudioSampleBuffer* buffer = new AudioSampleBuffer(1,audioFormatReader->lengthInSamples);
         filteredAudioArray.add(buffer);         //filteredAudioArray es un OwnedArray y debe ser declarado como una variable de la clase para que
     }                                           //le pertenezca y sea la clase la que lo borre.
     
@@ -53,8 +53,9 @@ MainContentComponent::MainContentComponent():readAheadThread("read Ahead thread"
     
     const int N = 1;                                                        //downsamplig rate
     const int M = 1;                                                        //length fraction
-    bufferWaveform = new Buffer(audioFormatReader->lengthInSamples/(M*N));  //buffer para downSamplig con el que se pinta waveForm
-    audioDownSamplig(audioBuffer,bufferWaveform,N,M);
+    bufferWaveform = new AudioSampleBuffer(1,audioFormatReader->lengthInSamples/(M*N));  //buffer para downSamplig con el que se pinta waveForm
+    bufferWaveform->clear();
+    audioDownSamplig(audioBuffer,bufferWaveform,N);
     
     addAndMakeVisible(tabsComponent = new TabbedComponent(TabbedButtonBar::TabsAtTop));
     tabsComponent->addTab("Respuesta al Impulso", Colour(0xff2f2f2f), new AudioWaveForm(bufferWaveform,true), true);
@@ -65,15 +66,16 @@ MainContentComponent::MainContentComponent():readAheadThread("read Ahead thread"
     setSize (1200, 400);
 }
 
+//==============================================================================
 MainContentComponent::~MainContentComponent(){
 }
 
+//==============================================================================
 void MainContentComponent::paint (Graphics& g){
-    float gap = 5.0;
     
-    GuiHelpers::drawBevel (g, tabsComponent->getBounds().toFloat(), gap, Colours::darkgrey);
 }
 
+//==============================================================================
 void MainContentComponent::resized(){
     const int w = getWidth();
     const int h = getHeight();
@@ -82,26 +84,26 @@ void MainContentComponent::resized(){
     tabsComponent->setBounds(gap, 0, w-gap-5, h-5);
 }
 
-void MainContentComponent::audioDownSamplig(AudioSampleBuffer* input, Buffer* output,int downSampligFactor, int audioFileProportion){
+//==============================================================================
+void MainContentComponent::audioDownSamplig(AudioSampleBuffer* input, AudioSampleBuffer* output,int downSampligFactor){
     
-    float* dataWaveform = output->getData();
-    ScopedPointer<Buffer>  auxBuf = new Buffer(downSampligFactor);
-    float* auxBufData = auxBuf->getData();
-    int sampleIndexModulo;
-    int maxLoc;
-    float maxVal;
     int sampleCounter=0;
+    float* dataWaveform = output->getWritePointer(0);
+    ScopedPointer<AudioSampleBuffer>  auxBuf = new AudioSampleBuffer(1, downSampligFactor);
+    auxBuf->clear();
+    int sampleIndexModulo;
     
     for(int j = 0; j < input->getNumSamples(); j++){
-        float sample = *input->getReadPointer(0, j);
+        float sample = input->getSample(0, j);
         sampleIndexModulo = j%downSampligFactor;
-        auxBufData[sampleIndexModulo] = sample;
+        auxBuf->setSample(0, sampleIndexModulo, sample);
         if(sampleIndexModulo==0){
             sampleCounter++;
-            if (sampleCounter < output->getSize()) {
-                if (sample > 0.0f) findMax(auxBufData, auxBuf->getSize(), maxLoc, maxVal);
-                else findMin(auxBufData, auxBuf->getSize(), maxLoc, maxVal);
-                dataWaveform[sampleCounter] = maxVal;
+            if (sampleCounter < output->getNumSamples()) {
+                if (sample > 0.0f)
+                    dataWaveform[sampleCounter] = auxBuf->findMinMax(0, 0, auxBuf->getNumSamples()).getEnd();
+                else
+                    dataWaveform[sampleCounter] = auxBuf->findMinMax(0, 0, auxBuf->getNumSamples()).getStart();
             }
         }
     }

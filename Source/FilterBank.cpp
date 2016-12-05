@@ -480,15 +480,18 @@ BandFilter::BandFilter(int bandFilterOrder){
     }
 }
 
+//==============================================================================
 BandFilter::~BandFilter(){
 }
 
+//==============================================================================
 void BandFilter::reset(){
     for(int i=0;i<bicuadFiltersArray.size();i++){
         bicuadFiltersArray[i]->reset();
     }
 }
 
+//==============================================================================
 void BandFilter::processSamples (float* const samples, const int numSamples){
     for(int i=0;i<bicuadFiltersArray.size();i++){
         bicuadFiltersArray[i]->processSamples(samples, numSamples);
@@ -508,16 +511,27 @@ FilterBank::FilterBank(int bandas){
     }
 }
 
+//==============================================================================
 FilterBank::~FilterBank(){
 }
 
-void FilterBank::processSamples(float* const input,OwnedArray<Buffer>* outputs,int numSamples){
+//==============================================================================
+void FilterBank::processSamples(float* const input,AudioSampleBuffer* outputs,int numSamples){
     for(int i=0; i<bandFiltersArray.size(); i++){
-        memcpy(outputs->getUnchecked(i)->getData(), input, numSamples*sizeof(float));
-        bandFiltersArray[i]->processSamples(outputs->getUnchecked(i)->getData(), numSamples);
+        outputs->copyFrom(i, 0, input, numSamples);
+        bandFiltersArray[i]->processSamples(outputs->getWritePointer(i), numSamples);
     }
 }
 
+//==============================================================================
+void FilterBank::processSamples(float* const input,OwnedArray<AudioSampleBuffer>* outputs,int numSamples){
+    for(int i=0; i<bandFiltersArray.size(); i++){
+        memcpy(outputs->getUnchecked(i)->getWritePointer(0), input, numSamples*sizeof(float));
+        bandFiltersArray[i]->processSamples(outputs->getUnchecked(i)->getWritePointer(0), numSamples);
+    }
+}
+
+//==============================================================================
 void FilterBank::setCoeficientes(){
     const double* G;
     
